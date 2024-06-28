@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online 3gx Builder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            text-align: center;
+        }
+        .upload-btn {
+            margin-top: 20px;
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Online 3gx Builder</h1>
+    <form id="uploadForm" action="https://supporting-danny-daichisontyo-013d1a50.koyeb.app/make3gx/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".zip,.7z,.gz" required><br>
+        <button class="upload-btn" type="submit">Upload</button>
+    </form>
+    <div id="loading" class="loading">Uploading and processing file, please wait...</div>
+    <div id="result" style="margin-top: 20px;"></div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(event) {
+            event.preventDefault();
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+
+            const formData = new FormData(this);
+            const fileInput = this.querySelector('input[type="file"]');
+            const fileName = fileInput.files[0].name;
+            const baseName = fileName.substring(0, fileName.lastIndexOf('.')); // Remove extension
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.type='application/octet-stream';
+                    link.href = url;
+                    link.download = `${baseName}.3gx`; // Set the download file name
+                    link.textContent = 'Download 3GX File';
+                    
+                    document.getElementById('result').appendChild(link);
+                    link.click(); // Automatically trigger download
+                } else {
+                    document.getElementById('result').textContent = 'Error processing the file.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'Error processing the file.';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
